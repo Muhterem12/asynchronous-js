@@ -99,13 +99,20 @@ body {
 }
 
 .btn-country {
+  margin-top: 20px;
   border: none;
   font-size: 2rem;
   padding: 2rem 5rem;
   border-radius: 0.7rem;
   color: white;
-  background-color: orangered;
+  background-color: tomato;
   cursor: pointer;
+  box-shadow: rgba(136, 165, 191, 0.48) 6px 2px 16px 0px,
+    rgba(248, 166, 74, 0.8) -6px -2px 16px 0px;
+}
+
+.btn-country:hover {
+  background-color: orangered;
 }
 
 .images {

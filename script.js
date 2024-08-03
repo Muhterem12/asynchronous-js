@@ -9,7 +9,7 @@ const countriesContainer = document.querySelector('.countries');
 // Asynchronous JavaScript And XML: Allow us to communicate with remote web servers in asynchronous way,
 // with AJAX calls we can request data from web servers dynamically
 
-// OLD SCHOOL WAY
+// ! RENDER COUNTRY CARD
 
 const renderCountry = function (data, className = '') {
   const html = `  
@@ -31,75 +31,81 @@ const renderCountry = function (data, className = '') {
 </article>`;
 
   countriesContainer.insertAdjacentHTML('beforeend', html);
-  countriesContainer.style.opacity = 1;
 };
 
-const getCountryAndNeighbour = function (country) {
-  // * AJAX CALL
-  // const request = new XMLHttpRequest(); // request is an object
-  // console.log(request);
-  // request.open('GET', `https://restcountries.com/v3.1/name/${country}`); // 'GET' is the type of request, second link is the link that will connect us to that api
-  // request.send();
-
-  // when the data arrives load event is fired
-  request.addEventListener('load', function () {
-    console.log(this); //  request
-    console.log(this.responseText);
-
-    // const data = JSON.parse(this.responseText)[0]; // converting it to object
-    // ! VERY IMPORTANT TO MEMORIZE ==> const [dara] = JSON.parse(this.responseText);
-    const [data] = JSON.parse(this.responseText); // converting it to object // destructuring
-    console.log(data);
-
-    // Render Country
-    renderCountry(data);
-
-    // Render Neighbours (1)
-    const neighbour = data.borders?.[0];
-
-    if (!neighbour) return;
-
-    const request2 = new XMLHttpRequest(); // request is an object
-    // console.log(request2);
-    request2.open('GET', `https://restcountries.com/v3.1/alpha/${neighbour}`); // 'GET' is the type of request, second link is the link that will connect us to that api
-    request2.send();
-
-    request2.addEventListener('load', function () {
-      const [data2] = JSON.parse(this.responseText); // Get data about neighbour
-      console.log(data2);
-      renderCountry(data2, 'neighbour');
-    });
-
-    // console.log(data.flag);
-    // console.log(data.flags.svg);
-    // console.log(data.name.common);
-    // console.log(data.region);
-    // console.log((+data.population / 1000000).toFixed(1));
-    // console.log(data.languages.tur);
-    // console.log(data.currencies.TRY.name);
-    // console.log(data.currencies.TRY.name);
-    // console.log(data.currencies.USD.name);
-
-    // console.log('--------------------');
-
-    // console.log(data.currencies);
-    // console.log(data.languages);
-
-    // console.log('--------------------');
-
-    // console.log(typeof data.currencies);
-    // console.log(data.currencies);
-    // console.log(Object.keys(data.currencies)[0]);
-    // console.log(data.currencies[Object.keys(data.currencies)[0]]);
-    // console.log(data.currencies['TRY']);
-
-    // console.log(data.currencies[Object.keys(data.currencies)[0]].name); // ! getting currency
-
-    // console.log(data.languages['tur']); // output: turkish
-    // console.log(data.languages[Object.keys(data.languages)[0]]); // ! getting language
-  });
-  console.log('---------------------------');
+// ! RENDER ERROR
+const renderError = function (msg) {
+  countriesContainer.insertAdjacentText('beforeend', msg);
 };
+
+// * OLD SCHOOL WAY, NOT MODERN
+
+// const getCountryAndNeighbour = function (country) {
+//   // * AJAX CALL
+//   // const request = new XMLHttpRequest(); // request is an object
+//   // console.log(request);
+//   // request.open('GET', `https://restcountries.com/v3.1/name/${country}`); // 'GET' is the type of request, second link is the link that will connect us to that api
+//   // request.send();
+
+//   // when the data arrives load event is fired
+//   request.addEventListener("load", function () {
+//     console.log(this); //  request
+//     console.log(this.responseText);
+
+//     // const data = JSON.parse(this.responseText)[0]; // converting it to object
+//     // ! VERY IMPORTANT TO MEMORIZE ==> const [dara] = JSON.parse(this.responseText);
+//     const [data] = JSON.parse(this.responseText); // converting it to object // destructuring
+//     console.log(data);
+
+//     // Render Country
+//     renderCountry(data);
+
+//     // Render Neighbours (1)
+//     const neighbour = data.borders?.[0];
+
+//     if (!neighbour) return;
+
+//     const request2 = new XMLHttpRequest(); // request is an object
+//     // console.log(request2);
+//     request2.open("GET", `https://restcountries.com/v3.1/alpha/${neighbour}`); // 'GET' is the type of request, second link is the link that will connect us to that api
+//     request2.send();
+
+//     request2.addEventListener("load", function () {
+//       const [data2] = JSON.parse(this.responseText); // Get data about neighbour
+//       console.log(data2);
+//       renderCountry(data2, "neighbour");
+//     });
+
+//     // console.log(data.flag);
+// console.log(data.flags.svg);
+// console.log(data.name.common);
+// console.log(data.region);
+// console.log((+data.population / 1000000).toFixed(1));
+// console.log(data.languages.tur);
+// console.log(data.currencies.TRY.name);
+// console.log(data.currencies.TRY.name);
+// console.log(data.currencies.USD.name);
+
+// console.log('--------------------');
+
+// console.log(data.currencies);
+// console.log(data.languages);
+
+// console.log('--------------------');
+
+// console.log(typeof data.currencies);
+// console.log(data.currencies);
+// console.log(Object.keys(data.currencies)[0]);
+// console.log(data.currencies[Object.keys(data.currencies)[0]]);
+// console.log(data.currencies['TRY']);
+
+// console.log(data.currencies[Object.keys(data.currencies)[0]].name); // ! getting currency
+
+// console.log(data.languages['tur']); // output: turkish
+// console.log(data.languages[Object.keys(data.languages)[0]]); // ! getting language
+// });
+// console.log("---------------------------");
+// };
 
 // getCountryAndNeighbour('mongolia');
 
@@ -154,21 +160,49 @@ console.log(Object.keys(g)[0]); // getting array of propery names
 // ! SIMPLIFIED
 const getCountryData = function (country) {
   fetch(`https://restcountries.com/v3.1/name/${country}`)
-    .then((resultingValue) => resultingValue.json())
+    .then(
+      (resultingValue) => {
+        console.log(resultingValue);
+
+        if (!resultingValue.ok) {
+          throw new Error(`Country not found ${response.status}`);
+        }
+        return resultingValue.json();
+      }
+      // (error) => alert(error) // there is a better way of doing this
+    ) // first value is when we have fulfilled promise, second is when we fail to fetch promisei error is 'Failed to fetch', chain stops when error happens
     .then((data) => {
       renderCountry(data[0]);
-      const neighbour = data[0].borders?.[0]; // checking borders
+      const neighbour = data[0].borders?.[0];
 
-      fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`)
-        .then((Neighbourresult) => Neighbourresult.json())
-        .then((neighbourData) => {
-          renderCountry(neighbourData);
-        });
-    });
+      // Neighbour
+      return fetch(`https://restcountries.com/v3.1/alpha/${neighbour}`); // we have to return it to pass it to pass it to next function in the chain
+    })
+    .then(
+      (response) => response.json()
+      // (err) => alert(err) // there is a better way of doing this
+    )
+    .then((neighbourData) => renderCountry(neighbourData[0], 'neighbour'))
+    .catch((err) => {
+      console.log(`${err} 💥💥💥`);
+      renderError(`Something went wrong 💥💥💥 ${err.message}. Try Again`); // err.message will take only the message not the error (test it yourself if its not clear)
+    })
+    // finally() will be called always no matter promise is fulfilled or rejected
+    .finally(() => (countriesContainer.style.opacity = 1));
 };
 
 // ? STEP BY STEP WHAT HAPPENS
-// ?  1- we fetch something
+// ? 1- we fetch something
 // ? 2- then we get a response that will be converted to json
 // ? 3- we take that data and render it to the dom
-getCountryData('usa');
+
+// ? then() method is called when promise is fulfilled
+// ? catch() method is called when promise is rejected
+// ? finally() method is always called no matter promise is fulfilled or rejected
+// ? they all return promise
+
+btn.addEventListener('click', function () {
+  getCountryData('algeria');
+});
+
+getCountryData('kurdistan');
