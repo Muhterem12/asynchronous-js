@@ -1,41 +1,57 @@
-// // ! ERRORS
-// // ? try{}, catch{}, throw{}, finally{}
-// // * catch{} has to come after try{}
+/*
 
-// // prettier-ignore
-// try {
+// ! ERRORS
+// ? try{}, catch{}, throw{}, finally{}
+// * catch{} has to come after try{}
 
-//   console.log('Start of try runs');
+// prettier-ignore
+try {
 
-//   unicycle;
+  console.log('Start of try runs');
 
-//   console.log('End of try runs -- never reached');
+  unicycle;
 
-// } catch (err) {
+  console.log('End of try runs -- never reached');
 
-//   console.error('error occured: ' + err + ' --- ' + err.stack);
+} catch (err) {
 
-// } finally {
+  console.error('error occured: ' + err + ' --- ' + err.stack);
 
-//   console.log('this always run');
+} finally {
 
-// }
+  console.log('this always run');
 
-// console.log('...Then the execution continues');
+}
 
-// let json = '{"age": 30}';
+console.log('...Then the execution continues');
 
-// // prettier-ignore
-// try {
+let json = '{"age": 30}';
 
-//   console.log(json) // this wont give the data in json format as we dident parse it
+// prettier-ignore
+try {
 
-//   let user = JSON.parse(json);
+  console.log(json) // this wont give the data in json format as we dident parse it
 
-//   console.log(user);
+  let user = JSON.parse(json);
 
-// } catch (err) {
+  console.log(user);
 
-//   console.error('JSON Error: ' + err.message); // err.message is more concise error
+} catch (err) {
 
-// }
+  console.error('JSON Error: ' + err.message); // err.message is more concise error
+
+}
+
+console.log('Test start');
+
+setTimeout(() => console.log('0 sec timer'), 0);
+Promise.resolve('Resoveld promise 1').then((res) => console.log(res)); // Promise.resolve immediately gives fulfilled promise
+
+Promise.resolve('Resolved promise 2').then((res) => {
+  for (let i = 0; i < 1000000000; i++) {}
+  console.log('test');
+});
+console.log('Test end');
+
+
+*/
