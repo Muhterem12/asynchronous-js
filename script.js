@@ -258,8 +258,7 @@ const lotteryPromise = new Promise(function (resolve, reject) {
     if (Math.random() >= 0.5) {
       resolve('You WIN'); // calling resolve function will mark this promise as fulfilled promise
     } else {
-      // reject('You LOST'); // creating error, this will be the error value
-      reject(new Error('You LOST 💩')); // real error
+      reject(new Error('You LOST 💩')); // creating real error
     }
   }, 2000);
 });
@@ -271,9 +270,18 @@ lotteryPromise
 
 // ! PROMISIFYING SET TIME OUT
 const wait = function (seconds) {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     setTimeout(resolve, seconds * 1000);
+    // Math.random() > 0.4 ? resolve('!') : reject('#');
   });
 };
 
-wait(1.5).then(() => console.log('I waited 2 seconds')); // it will resolve after 1.5 seconds
+wait(1.5)
+  .then(() => {
+    console.log('I waited 1.5 seconds');
+    return wait(1);
+  })
+  .then(() => console.log('after 1.5 + 1 sec waited'));
+
+// wait(1.5).then((res) => console.log(res))
+// .catch((err) => alert(`-- ${err} --`));
