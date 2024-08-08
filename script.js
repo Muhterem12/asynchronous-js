@@ -1,9 +1,9 @@
 'use strict';
 
-/*
-
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
+
+/*
 
 ///////////////////////////////////////
 
@@ -135,7 +135,7 @@ const renderError = function (msg) {
 // request.open('GET', `https://restcountries.com/v3.1/name/${country}`); // 'GET' is the type of request, second link is the link that will connect us to that api
 // request.send();
 
-// //* MODERN WAY AJAX CALLS
+// * MODERN WAY AJAX CALLS
 // * const request = fetch('https://restcountries.com/v3.1/name/portugal'); // rerquest is a promise
 // * console.log(request);
 
@@ -248,9 +248,9 @@ const whereAmI = function (lat, lng) {
 whereAmI(35.5, 32.8);
 whereAmI(52.508, 13.381);
 
-*/
-
 // ! CREATING A PROMISE
+
+// * in practice we usually just consume promises
 // * creating a new promises, promises are special kind of object, the function is called executer, as soon as promise runs it runs that executer function. promise should end up in either resolve or reject
 const lotteryPromise = new Promise(function (resolve, reject) {
   console.log('Lotter draw is happening ...');
@@ -263,25 +263,70 @@ const lotteryPromise = new Promise(function (resolve, reject) {
   }, 2000);
 });
 
-// ! CONSUMING A PROMISE
+// ! CONSUMING THE PROMISE
 lotteryPromise
   .then((res) => console.log(res))
   .catch((err) => console.error(err));
 
 // ! PROMISIFYING SET TIME OUT
 const wait = function (seconds) {
-  return new Promise(function (resolve, reject) {
-    setTimeout(resolve, seconds * 1000);
-    // Math.random() > 0.4 ? resolve('!') : reject('#');
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000); // it's not necesarry to wait for value
   });
 };
 
-wait(1.5)
+const waitSeconds = 3;
+wait(waitSeconds)
   .then(() => {
-    console.log('I waited 1.5 seconds');
+    console.log(
+      `${waitSeconds} SECONDS WAITED, we dont receive any resolved value so there is no parameter in this function`
+    );
+    return wait(1); // in the result of the first fetch we create a new fetch and return it
+  })
+  .then(() => {
+    console.log('i waited for 1 more seconds');
     return wait(1);
   })
-  .then(() => console.log('after 1.5 + 1 sec waited'));
+  .then(() => {
+    console.log('I waited even more !!');
+    return wait(1);
+  })
+  .then(() => {
+    console.log('I WAITED FOR SO LONG !!!!!!!');
+  });
 
-// wait(1.5).then((res) => console.log(res))
-// .catch((err) => alert(`-- ${err} --`));
+// ! BAD PRACTİCE (dont do this)
+// setTimeout(() => {
+//   console.log('1 second passed');
+//   setTimeout(() => {
+//     console.log('2 seconds passed');
+//     setTimeout(() => {
+//       console.log('3 second passed');
+//       setTimeout(() => {
+//         console.log('4 second passed');
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+// ! CREATING FULFILLED OR REJECTED PROMISE IMMEDIATELY (CHEAT CODE)
+Promise.resolve('Resolved immediately').then((res) => console.log(res)); // this is a static method on Promise constructor
+Promise.reject('Rejected immediately').catch((err) => console.error(err));
+
+*/
+
+// navigator.geolocation.getCurrentPosition() // getting the user's coordinates
+
+// promisifying a callback based API to promise based API
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // * navigator.geolocation.getCurrentPosition(
+    // *   (position) => resolve(position),
+    // *   (err) => reject(err)
+    // * );
+    navigator.geolocation.getCurrentPosition(resolve, reject); // * SAME THING
+  });
+};
+
+getPosition().then((val) => console.log(val));
