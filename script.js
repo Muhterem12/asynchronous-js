@@ -3,16 +3,6 @@
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
-/*
-
-///////////////////////////////////////
-
-// AJAX
-// Asynchronous JavaScript And XML: Allow us to communicate with remote web servers in asynchronous way,
-// with AJAX calls we can request data from web servers dynamically
-
-// ! RENDER COUNTRY CARD
-
 const renderCountry = function (data, className = '') {
   const html = `  
 <article class="country ${className}">
@@ -39,6 +29,17 @@ const renderCountry = function (data, className = '') {
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText('beforeend', msg);
 };
+
+/*
+
+///////////////////////////////////////
+
+// AJAX
+// Asynchronous JavaScript And XML: Allow us to communicate with remote web servers in asynchronous way,
+// with AJAX calls we can request data from web servers dynamically
+
+// ! RENDER COUNTRY CARD
+
 
 // * OLD SCHOOL WAY, NOT MODERN
 
@@ -321,12 +322,46 @@ Promise.reject('Rejected immediately').catch((err) => console.error(err));
 
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
-    // * navigator.geolocation.getCurrentPosition(
-    // *   (position) => resolve(position),
-    // *   (err) => reject(err)
-    // * );
-    navigator.geolocation.getCurrentPosition(resolve, reject); // * SAME THING
+    // ? navigator.geolocation.getCurrentPosition(
+    // ?   (position) => resolve(position),
+    // ?   (err) => reject(err)
+    // ? );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-getPosition().then((val) => console.log(val));
+getPosition()
+  .then((val) => console.log(val))
+  .catch((err) => console.log('Something went wrong => ' + err));
+
+const whereAmI = function () {
+  getPosition()
+    .then((pos) => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      // const { latitude, longitude } = pos.coords;
+      // console.log(latitude);
+      // console.log(longitude);
+      console.log(lat, lng);
+      return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    })
+    .then((response) => {
+      console.log(response);
+
+      if (!response.ok)
+        throw new Error(`Problem with geocoding ${response.status}`);
+
+      return response.json();
+    })
+    .then((data) => {
+      console.log(data);
+      console.log(`You are in ${data.region}, ${data.country}`);
+
+      return fetch(`https://restcountries.com/v3.1/name/${data.country}`);
+    })
+    .then((response) => response.json())
+    .then((data) => renderCountry(data[0]))
+    .catch((err) => console.error(`Something went wrong ${err.message}`))
+    .finally((countriesContainer.style.opacity = 1));
+};
+
+btn.addEventListener('click', whereAmI); // interestingly when i add parenthesis to 'whereAmI' im getting error !?
