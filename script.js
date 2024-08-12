@@ -314,7 +314,6 @@ wait(waitSeconds)
 Promise.resolve('Resolved immediately').then((res) => console.log(res)); // this is a static method on Promise constructor
 Promise.reject('Rejected immediately').catch((err) => console.error(err));
 
-*/
 
 // navigator.geolocation.getCurrentPosition() // getting the user's coordinates
 
@@ -365,3 +364,47 @@ const whereAmI = function () {
 };
 
 btn.addEventListener('click', whereAmI); // interestingly when i add parenthesis to 'whereAmI' im getting error !?
+
+*/
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+// ! ASYNC/AWAIT
+
+// * async function performs the code inside of it while running at the background, when function is done it automatically returns promise
+
+const whereAmI = async function (country) {
+  try {
+    const pos = await getPosition();
+    const { latitude: lat, longitude: lng } = pos.coords;
+
+    const geoRes = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    const dataGeo = await geoRes.json();
+    const currCountry = dataGeo.country;
+
+    const response = await fetch(
+      `https://restcountries.com/v3.1/name/${currCountry}`
+    );
+
+    const data = await response.json();
+    renderCountry(data[0]);
+    countriesContainer.style.opacity = 1;
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+whereAmI('turkey');
+
+// try {
+//   const x = 1;
+//   const y = 2;
+//   x = 3;
+// } catch (err) {
+//   alert(err.message);
+// }
+//
