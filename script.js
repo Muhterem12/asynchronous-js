@@ -12,7 +12,7 @@ const renderCountry = function (data, className = '') {
     <h4 class="country__region">${data.region}</h4>
     <p class="country__row"><span>👫</span>${(
       +data.population / 1000000
-    ).toFixed(1)}</p>
+    ).toFixed(3)}</p>
     <p class="country__row"><span>🗣️</span>${
       data.languages[Object.keys(data.languages)[0]]
     }</p>
@@ -376,13 +376,14 @@ const getPosition = function () {
 // ! ASYNC/AWAIT
 
 // * async function performs the code inside of it while running at the background, when function is done it automatically returns promise
-
+// * an async function always returns promise
 const whereAmI = async function (country) {
   try {
     const pos = await getPosition();
     const { latitude: lat, longitude: lng } = pos.coords;
 
     const geoRes = await fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`);
+    if (!geoRes.ok) throw new Error('Problem getting location');
     const dataGeo = await geoRes.json();
     const currCountry = dataGeo.country;
 
@@ -390,21 +391,29 @@ const whereAmI = async function (country) {
       `https://restcountries.com/v3.1/name/${currCountry}`
     );
 
+    if (!response.ok) throw new Error('Problem getting the country');
+
     const data = await response.json();
     renderCountry(data[0]);
     countriesContainer.style.opacity = 1;
+
+    return `You are in ${dataGeo.city}, ${dataGeo.country}`;
   } catch (err) {
+    // alert(err.message);
     alert(err.message);
+    renderError(`Something went wrong ${err.message}`);
+    countriesContainer.style.opacity = 1;
+
+    // ! //
+    // ! REJECT PROMISE RETURNED FROM ASYNC FUNCTION, if you skip this part even when there is an error it will return fulfilled
+    throw err; // no need for 1new Error", we already have error
   }
 };
 
-whereAmI('turkey');
+// const place = whereAmI();
+// console.log(place); // * an asyn function always returns promise // fulfilled value of that promise will be what we returned
 
-// try {
-//   const x = 1;
-//   const y = 2;
-//   x = 3;
-// } catch (err) {
-//   alert(err.message);
-// }
-//
+whereAmI()
+  .then((res) => console.log(res))
+  .catch((err) => console.error(`We got an error => ${err.message}`));
+// .catch((err) => console.error(`We got an error => ${err.message}`));
