@@ -89,7 +89,7 @@ const renderError = function (msg) {
 // console.log(data.currencies.TRY.name);
 // console.log(data.currencies.USD.name);
 
-// console.log('--------------------');
+// console.log('--------------------');jjjjjj
 
 // console.log(data.currencies);
 // console.log(data.languages);
