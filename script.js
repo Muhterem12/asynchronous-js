@@ -1,5 +1,72 @@
+/*
+
+
+(async function () {
+  try {
+    const city = await whereAmI();
+    console.log(city);
+  } catch (err) {
+    console.log(`💥💥 ${err.message} 💥💥`);
+  }
+})();
+
+console.clear();
+
+const getData = function () {
+  return new Promise((resolve, reject) => {
+    const randomNum = Math.floor(Math.random() * 50);
+    setTimeout(() => {
+      resolve(randomNum);
+    }, 600);
+  });
+};
+
+// const result = await getData();
+// result.then((_) => console.log(_));
+
+const start = async function () {
+  const result = await getData();
+  console.log(result);
+};
+
+// console.log(start());
+// start();
+
+// ! IIFE (immediately invoked function expressions)
+// they dont polute the global object name space
+
+let num;
+
+(function myIIFE() {
+  num++;
+  console.log(num);
+  return num !== 5 ? myIIFE(num) : console.log('Finished');
+})((num = 0));
+
+console.log(num);
+
+// global
+const x = 'whatever';
+
+const helloWorld = () => 'Hello World!';
+
+// isolate declarations within the function
+(() => {
+  const x = 'iife whatever';
+  const helloWorld = () => 'Hello IIFE';
+  console.log(x);
+  console.log(helloWorld());
+})();
+
+console.log(x);
+console.log(helloWorld());
+
+//
+*/
+
 'use strict';
 
+const imgContainer = document.querySelector('.images');
 const btn = document.querySelector('.btn-country');
 const countriesContainer = document.querySelector('.countries');
 
@@ -28,6 +95,16 @@ const renderCountry = function (data, className = '') {
 // ! RENDER ERROR
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText('beforeend', msg);
+};
+
+// Getting JSON format
+
+const getJSON = function (url, errorMessage = 'Something went wrong') {
+  // we return the function and return a value withing that function
+  return fetch(url).then((response) => {
+    if (!response.ok) throw new Error(`${errorMessage} ${response.status}`); // creating our own error, rejecting the promise on purpose
+    return response.json();
+  });
 };
 
 /*
@@ -159,13 +236,6 @@ const renderError = function (msg) {
 // };
 
 // * GETTING JSON FORMAT BY CHECKING ANY ERROR
-const getJSON = function (url, errorMessage = 'Something went wrong') {
-  // we return the function and return a value withing that function
-  return fetch(url).then((response) => {
-    if (!response.ok) throw new Error(`${errorMessage} ${response.status}`); // creating our own error, rejecting the promise on purpose
-    return response.json();
-  });
-};
 
 // ! SIMPLIFIED
 const getCountryData = function (country) {
@@ -365,8 +435,6 @@ const whereAmI = function () {
 
 btn.addEventListener('click', whereAmI); // interestingly when i add parenthesis to 'whereAmI' im getting error !?
 
-*/
-
 const getPosition = function () {
   return new Promise(function (resolve, reject) {
     navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -413,7 +481,160 @@ const whereAmI = async function (country) {
 // const place = whereAmI();
 // console.log(place); // * an asyn function always returns promise // fulfilled value of that promise will be what we returned
 
-whereAmI()
-  .then((res) => console.log(res))
-  .catch((err) => console.error(`We got an error => ${err.message}`));
-// .catch((err) => console.error(`We got an error => ${err.message}`));
+// whereAmI().then((res) => console.log(res))
+
+// ? Promise.race(), Promise.all(), Promsie.allSettled, Promise.any()
+
+const get3countriess = async function (c1, c2, c3) {
+  try {
+    // const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`)
+    // const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`)
+    // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`)
+
+    // const capitalArray = [...data1.capital, ...data2.capital, ...data3.capital];
+    // console.log(capitalArray);
+
+    // ! Promise.all()
+    // * this method takes in an array of promises and returns new promise, which will run all promises array at the same time, saving us time to load the page
+    // * if one of the promises reject, then all of the promises rejects as well
+
+    const data = await Promise.all([
+      getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+      getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+    ]); // fetching 2 countries at the same time
+
+    // console.log(data.map((d) => d[0].capital));
+
+    const arrsCapital = data.map((c) => c[0].capital);
+    console.log(arrsCapital);
+
+    const newArrsCapital = [].concat(...arrsCapital);
+    console.log(newArrsCapital);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+get3countriess('turkey', 'spain', 'algeria');
+
+
+// ! Promise.race()
+// * inside the array promises will race each other, winner becomes the returned promise, promise that gets rejected can also win the race
+
+(async function () {
+  const res = await Promise.race([
+    getJSON(`https://restcountries.com/v3.1/name/zambia`),
+    getJSON(`https://restcountries.com/v3.1/name/albania`),
+    getJSON(`https://restcountries.com/v3.1/name/andorra`),
+  ]);
+})();
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('request took too long!'));
+    }, sec * 1000);
+  });
+};
+
+Promise.race([
+  getJSON(`https://restcountries.com/v3.1/name/zambia`),
+  timeout(1),
+])
+  .then((res) => console.log(res[0]))
+  .catch((err) => console.error(err.message + '💥💥💥'));
+
+
+// ! Promise.allSettled()
+// * never short circuits, returns all results of all promises, its different from Promise.all() as it would return error
+Promise.any([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('another Success'),
+  Promise.reject('another ERROR'),
+]).then((res) => console.log(res));
+
+// ! Promise.any()
+// * return first fulfilled promise, ignoring rejected promises
+
+*/
+
+///////////////////////////////////////
+// Coding Challenge #3
+
+/* 
+PART 1
+Write an async function 'loadNPause' that recreates Coding Challenge #2, this time using async/await (only the part where the promise is consumed). Compare the two versions, think about the big differences, and see which one you like more.
+Don't forget to test the error handler, and to set the network speed to 'Fast 3G' in the dev tools Network tab.
+
+PART 2
+1. Create an async function 'loadAll' that receives an array of image paths 'imgArr';
+2. Use .map to loop over the array, to load all the images with the 'createImage' function (call the resulting array 'imgs')
+3. Check out the 'imgs' array in the console! Is it like you expected?
+4. Use a promise combinator function to actually get the images from the array 😉
+5. Add the 'parallel' class to all the images (it has some CSS styles).
+
+TEST DATA: ['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']. To test, turn off the 'loadNPause' function.
+
+GOOD LUCK 😀
+*/
+
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000); // it's not necesarry to wait for value
+  });
+};
+
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const img = document.createElement('img');
+    img.src = imgPath;
+
+    img.addEventListener('load', function () {
+      imgContainer.append(img);
+      resolve(img);
+    });
+
+    img.addEventListener('error', function () {
+      reject(new Error('Image not found'));
+    });
+  });
+};
+
+// const loadNPause = async function () {
+//   try {
+//     // image-1
+//     let img = await createImage('img/img-1.jpg');
+//     console.log('Image 1 loaded');
+
+//     await wait(2);
+//     img.style.display = 'none';
+
+//     // image-2
+//     img = await createImage('img/img-2.jpg');
+//     console.log('Image 2 loaded');
+
+//     await wait(2);
+//     img.style.display = 'none';
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+// loadNPause();
+
+// Part2
+const loadAll = async function (imgArr) {
+  try {
+    const imgs = imgArr.map(async (img) => await createImage(img));
+    console.log(imgs);
+
+    const imgEl = await Promise.all(imgs);
+    console.log(imgEl);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+loadAll(['img/img-1.jpg', 'img/img-2.jpg', 'img/img-3.jpg']);
